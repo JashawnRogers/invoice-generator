@@ -22,7 +22,7 @@ public class LineItem {
         }
     }
 
-    public LineItem createNew(String description, int quantity, BigDecimal unitPrice) {
+    public static LineItem createNew(String description, int quantity, BigDecimal unitPrice) {
         return new LineItem(description, quantity, unitPrice);
     }
 
