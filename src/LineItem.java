@@ -33,8 +33,12 @@ public class LineItem {
         return text.trim();
     }
 
-    public BigDecimal calculateTotal(int quantity, BigDecimal unitPrice) {
-        return unitPrice.multiply(BigDecimal.valueOf(quantity)).setScale(2, RoundingMode.HALF_UP);
+    public BigDecimal calculateTotal() {
+        return this.getUnitPrice().multiply(BigDecimal.valueOf(this.getQuantity())).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public String toFormattedString() {
+        return "%s  %s x $%s = $%s".formatted(this.getDescription(), this.getQuantity(), this.getUnitPrice(), calculateTotal());
     }
 
     public String getDescription() {

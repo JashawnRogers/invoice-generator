@@ -37,7 +37,7 @@ public class Invoice {
             throw new RuntimeException("A due date must be provided.");
         }
 
-        if (lineItems == null || lineItems.isEmpty()) {
+        if (lineItems != null && !lineItems.isEmpty()) {
             this.lineItems = lineItems;
         } else {
             throw new RuntimeException("Line items are required to create an invoice.");
@@ -51,19 +51,22 @@ public class Invoice {
         return new Invoice(customer, invoiceDate,dueDate, lineItems);
     }
 
-    public BigDecimal calculateSubtotal(List<LineItem> lineItems) {
-        return lineItems.stream()
-                .map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+    public BigDecimal calculateSubtotal() {
+        return this.getLineItems().stream()
+                .map(LineItem::calculateTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
     }
 
-    public BigDecimal calculateTax(BigDecimal subtotal) {
+    public BigDecimal calculateTax() {
+        BigDecimal subtotal = this.calculateSubtotal();
         return subtotal.multiply(BigDecimal.valueOf(TAX_RATE))
                 .setScale(2, RoundingMode.HALF_UP);
     }
 
-    public BigDecimal calculateTotal(BigDecimal subtotal, BigDecimal tax) {
+    public BigDecimal calculateTotal() {
+        BigDecimal subtotal = this.calculateSubtotal();
+        BigDecimal tax = this.calculateTax();
         return subtotal.add(tax);
     }
 

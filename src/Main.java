@@ -5,6 +5,8 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class Main {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
@@ -66,12 +68,13 @@ public class Main {
             lineItems.add(extraLineItem);
         }
 
-
-
         Customer customer = Customer.createNew(customerName, customerEmail);
         Invoice invoice = Invoice.createNew(customer, parseDate(invoiceDate), parseDate(invoiceDueDate), lineItems);
 
         // Focus on formatting invoice in terminal.
+        String invoiceString = constructInvoice(invoice);
+
+        System.out.print(invoiceString);
     }
 
     private static LocalDate parseDate(String date) {
@@ -80,5 +83,36 @@ public class Main {
         } catch (DateTimeParseException e) {
             throw new DateTimeParseException("Invalid date input", e.getParsedString(), e.getErrorIndex());
         }
+    }
+
+    private static String constructInvoice(Invoice invoice) {
+        String lineItemOutput = invoice.getLineItems().stream()
+                .map(LineItem::toFormattedString)
+                .collect(Collectors.joining("\n"));
+
+        return """
+                \n
+                Invoice #: %s
+                Customer: %s
+                Email: %s
+                Invoice Date: %s
+                Due Date: %s
+                
+                Items:
+                %s
+                
+                Subtotal:   %s
+                Tax:        %s
+                Total:      %s
+                """.formatted(
+                        invoice.getInvoiceNumber(),
+                invoice.getCustomer().getName(),
+                invoice.getCustomer().getEmail(),
+                invoice.getInvoiceDate(),
+                invoice.getDueDate(),
+                lineItemOutput,
+                invoice.calculateSubtotal(),
+                invoice.calculateTax(),
+                invoice.calculateTotal());
     }
 }
